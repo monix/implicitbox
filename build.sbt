@@ -136,9 +136,7 @@ lazy val scalaJSSettings = Seq(
 
 lazy val nativeSettings = Seq(
   scalaVersion := Scala211,
-  crossScalaVersions := Seq(Scala211),
-  publishConfiguration := publishConfiguration.value.withOverwrite(true),
-  publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true)
+  crossScalaVersions := Seq(Scala211)
 )
 
 lazy val needsScalaParadise = settingKey[Boolean]("Needs Scala Paradise")
@@ -209,6 +207,9 @@ lazy val publishSettings = Seq(
       }
     }).transform(node).head
   },
+
+  publishConfiguration := publishConfiguration.value.withOverwrite(true),
+  publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
 
   /* The BaseVersion setting represents the in-development (upcoming) version,
    * as an alternative to SNAPSHOTS.
