@@ -7,11 +7,10 @@ import scala.xml.Elem
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 addCommandAlias("ci-all",  ";+clean ;+test:compile ;+test ;+package")
-addCommandAlias("release", ";+clean ;+implicitsNative/clean ;+publishSigned ;+implicitsNative/publishSigned")
+addCommandAlias("release", ";+clean ;+implicitboxNative/clean ;+publishSigned ;+implicitboxNative/publishSigned")
 
 val Scala211 = "2.11.12"
-
-ThisBuild / scalaVersion       := "2.12.8"
+ThisBuild / scalaVersion       := "2.13.0"
 ThisBuild / crossScalaVersions := Seq(Scala211, "2.12.8", "2.13.0")
 ThisBuild / organization       := "io.monix"
 ThisBuild / organizationName   := "monix"
@@ -230,7 +229,7 @@ lazy val publishSettings = Seq(
   }
 )
 
-lazy val implicitsRoot = project.in(file("."))
+lazy val implicitboxRoot = project.in(file("."))
   .aggregate(implicitboxJVM, implicitboxJS, implicitboxNative)
   .settings(
     name := "implicitbox root",
