@@ -37,7 +37,7 @@ ThisBuild / developers := List(
   ))
 
 // -- Settings meant for deployment on oss.sonatype.org
-ThisBuild / sonatypeProfileName := (ThisBuild / organization).value
+//ThisBuild / sonatypeProfileName := (ThisBuild / organization).value
 ThisBuild / publishMavenStyle := true
 ThisBuild / publishTo := {
   val nexus = "https://oss.sonatype.org/"
