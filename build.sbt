@@ -3,6 +3,8 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 // shadow sbt-scalajs' crossProject and CrossType until Scala.js 1.0.0 is released
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 import sbt.Keys._
+import scala.xml.Elem
+import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 addCommandAlias("ci-all",  ";+clean ;+test:compile ;+test ;+package")
 addCommandAlias("release", ";+clean ;+implicitsNative/clean ;+publishSigned ;+implicitsNative/publishSigned")
@@ -161,6 +163,73 @@ lazy val requiredMacroCompatDeps = Seq(
   }
 )
 
+val ReleaseTag = """^v(\d+\.\d+\.\d+(?:[-.]\w+)?)$""".r
+lazy val publishSettings = Seq(
+  ThisBuild / organization := "io.monix",
+  ThisBuild / licenses := Seq("APL2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+  ThisBuild / homepage := Some(url("https://github.com/monix/implicitbox")),
+
+  ThisBuild / scmInfo := Some(
+    ScmInfo(
+      url("https://github.com/monix/implicitbox"),
+      "scm:git@github.com:monix/implicitbox.git"
+    )),
+
+  ThisBuild / developers := List(
+    Developer(
+      id="alexelcu",
+      name="Alexandru Nedelcu",
+      email="noreply@alexn.org",
+      url=url("https://alexn.org")
+    )),
+
+  // -- Settings meant for deployment on oss.sonatype.org
+  //ThisBuild / sonatypeProfileName := (ThisBuild / organization).value
+  ThisBuild / publishMavenStyle := true,
+  ThisBuild / publishTo := {
+    val nexus = "https://oss.sonatype.org/"
+    if (isSnapshot.value)
+      Some("snapshots" at nexus + "content/repositories/snapshots")
+    else
+      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+  },
+  ThisBuild / isSnapshot := {
+    (ThisBuild / version).value endsWith "SNAPSHOT"
+  },
+  ThisBuild / Test / publishArtifact := false,
+  ThisBuild / pomIncludeRepository := { _ => false }, // removes optional dependencies
+
+  // For evicting Scoverage out of the generated POM
+  // See: https://github.com/scoverage/sbt-scoverage/issues/153
+  ThisBuild / pomPostProcess := { (node: xml.Node) =>
+    new RuleTransformer(new RewriteRule {
+      override def transform(node: xml.Node): Seq[xml.Node] = node match {
+        case e: Elem
+          if e.label == "dependency" && e.child.exists(child => child.label == "groupId" && child.text == "org.scoverage") => Nil
+        case _ => Seq(node)
+      }
+    }).transform(node).head
+  },
+
+  /* The BaseVersion setting represents the in-development (upcoming) version,
+   * as an alternative to SNAPSHOTS.
+   */
+  git.baseVersion := "0.0.1",
+
+  git.gitTagToVersionNumber := {
+    case ReleaseTag(v) => Some(v)
+    case _ => None
+  },
+
+  git.formattedShaVersion := {
+    val suffix = git.makeUncommittedSignifierSuffix(git.gitUncommittedChanges.value, git.uncommittedSignifier.value)
+
+    git.gitHeadCommit.value map { _.substring(0, 7) } map { sha =>
+      git.baseVersion.value + "-" + sha + suffix
+    }
+  }
+)
+
 lazy val implicitsRoot = project.in(file("."))
   .aggregate(implicitboxJVM, implicitboxJS, implicitboxNative)
   .settings(
@@ -172,13 +241,15 @@ lazy val implicitsRoot = project.in(file("."))
 lazy val implicitbox = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .in(file("."))
   .enablePlugins(AutomateHeaderPlugin)
+  .enablePlugins(GitVersioning)
   .nativeSettings(nativeSettings)
   .jsSettings(scalaJSSettings)
   .settings(
     name := "implicitbox",
     sharedSettings,
     crossVersionSharedSources,
-    requiredMacroCompatDeps
+    requiredMacroCompatDeps,
+    publishSettings
   )
 
 lazy val implicitboxJVM    = implicitbox.jvm
