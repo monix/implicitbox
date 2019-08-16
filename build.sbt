@@ -6,14 +6,14 @@ import sbt.Keys._
 import scala.xml.Elem
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
-addCommandAlias("ci-all",  ";+clean ;+test:compile ;+test ;+package")
+addCommandAlias("ci-all",  ";+clean ;implicitboxNative/clean ;+test:compile ;implicitboxNative/test:compile ;+test ;implicitboxNative/test ;+package ;implicitboxNative/package")
 addCommandAlias("release", ";+clean ;+implicitboxNative/clean ;+publishSigned ;+implicitboxNative/publishSigned")
 
-val Scala211 = "2.11.12"
-ThisBuild / scalaVersion       := "2.13.0"
-ThisBuild / crossScalaVersions := Seq(Scala211, "2.12.8", "2.13.0")
-ThisBuild / organization       := "io.monix"
-ThisBuild / organizationName   := "monix"
+val Scala211        = "2.11.12"
+scalaVersion       := "2.13.0"
+crossScalaVersions := Seq(Scala211, "2.12.8", "2.13.0")
+organization       := "io.monix"
+organizationName   := "monix"
 
 def scalaPartV = Def setting (CrossVersion partialVersion scalaVersion.value)
 lazy val crossVersionSharedSources: Seq[Setting[_]] =

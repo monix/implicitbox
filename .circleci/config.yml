@@ -29,19 +29,9 @@ jobs:
           key: implicitbox-cache
 
       - run:
-          name: Compile project for JVM / JS
+          name: Build and run tests
           working_directory: ~/implicitbox
-          command: cat /dev/null | sbt -J-Xmx3072m -J-XX:MaxMetaspaceSize=1024m +clean +test:compile +package
-
-      - run:
-          name: Run tests for JVM / JS
-          working_directory: ~/implicitbox
-          command: cat /dev/null | sbt -J-Xmx3072m -J-XX:MaxMetaspaceSize=1024m +test
-
-      - run:
-          name: Compile & Test project for Native
-          working_directory: ~/implicitbox
-          command: cat /dev/null | sbt -J-Xmx3072m -J-XX:MaxMetaspaceSize=1024m +implicitboxNative/clean +implicitboxNative/test +implicitboxNative/package
+          command: cat /dev/null | sbt -J-Xmx3072m -J-XX:MaxMetaspaceSize=1024m ci-all
 
       - save_cache:
           key: implicitbox-cache
