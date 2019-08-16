@@ -230,7 +230,7 @@ lazy val publishSettings = Seq(
 )
 
 lazy val implicitboxRoot = project.in(file("."))
-  .aggregate(implicitboxJVM, implicitboxJS, implicitboxNative)
+  .aggregate(implicitboxJVM, implicitboxJS)
   .settings(
     name := "implicitbox root",
     Compile / sources := Nil,
