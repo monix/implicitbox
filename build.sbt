@@ -10,8 +10,8 @@ addCommandAlias("ci-all",  ";+clean ;implicitboxNative/clean ;+test:compile ;imp
 addCommandAlias("release", ";+clean ;+implicitboxNative/clean ;+publishSigned ;+implicitboxNative/publishSigned")
 
 val Scala211 = "2.11.12"
-ThisBuild / scalaVersion       := "2.13.0"
-ThisBuild / crossScalaVersions := Seq(Scala211, "2.12.8", "2.13.0")
+ThisBuild / scalaVersion       := "2.13.1"
+ThisBuild / crossScalaVersions := Seq(Scala211, "2.12.10", scalaVersion.value)
 ThisBuild / organization       := "io.monix"
 ThisBuild / organizationName   := "monix"
 
@@ -101,7 +101,7 @@ lazy val sharedSettings = Seq(
   }),
 
   resolvers ++= Seq(
-    "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
+    "Typesafe Releases" at "https://repo.typesafe.com/typesafe/releases",
     Resolver.sonatypeRepo("releases")
   ),
 
@@ -109,7 +109,7 @@ lazy val sharedSettings = Seq(
     (baseDirectory in LocalRootProject).value / "shared/src/main/scala"
   },
 
-  libraryDependencies += "io.monix" %%% "minitest" % "2.6.0" % "test",
+  libraryDependencies += "io.monix" %%% "minitest" % "2.7.0" % "test",
   testFrameworks += new TestFramework("minitest.runner.Framework"),
 
   headerLicense := Some(HeaderLicense.Custom(
@@ -144,7 +144,7 @@ lazy val needsScalaParadise = settingKey[Boolean]("Needs Scala Paradise")
 lazy val requiredMacroCompatDeps = Seq(
   needsScalaParadise := {
     val sv = scalaVersion.value
-    (sv startsWith "2.11.") || (sv startsWith "2.12.") || (sv == "2.13.0-M3")
+    (sv startsWith "2.11.") || (sv startsWith "2.12.")
   },
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect" % scalaVersion.value % Compile,

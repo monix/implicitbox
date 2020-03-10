@@ -7,7 +7,7 @@ jobs:
     docker:
       - image: openjdk:8
     environment:
-      SBT_VERSION: 1.2.8
+      SBT_VERSION: 1.3.8
     resource_class: medium
     steps:
       - run:
@@ -39,3 +39,4 @@ jobs:
             - "~/.ivy2/cache"
             - "~/.sbt"
             - "~/.m2"
+            - "~/.coursier"
