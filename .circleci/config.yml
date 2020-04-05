@@ -34,7 +34,7 @@ jobs:
       - run:
           name: Build and run tests
           working_directory: ~/implicitbox
-          command: cat /dev/null | SCALAJS_VERSION =<< parameters.scalajsVersion >> sbt -J-Xmx3072m -J-XX:MaxMetaspaceSize=1024m ci-all
+          command: cat /dev/null | SCALAJS_VERSION=<< parameters.scalajsVersion >> sbt -J-Xmx3072m -J-XX:MaxMetaspaceSize=1024m ci-all
 
       - save_cache:
           key: implicitbox-cache
