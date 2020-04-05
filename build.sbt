@@ -3,15 +3,13 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 // shadow sbt-scalajs' crossProject and CrossType until Scala.js 1.0.0 is released
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 import sbt.Keys._
-import scala.xml.Elem
-import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 addCommandAlias("ci-all",  ";+clean ;implicitboxNative/clean ;+test:compile ;implicitboxNative/test:compile ;+test ;implicitboxNative/test ;+package ;implicitboxNative/package")
 addCommandAlias("release", ";+clean ;+implicitboxNative/clean ;+publishSigned ;+implicitboxNative/publishSigned")
 
 val Scala211 = "2.11.12"
-ThisBuild / scalaVersion       := "2.13.0"
-ThisBuild / crossScalaVersions := Seq(Scala211, "2.12.8", "2.13.0")
+ThisBuild / scalaVersion       := "2.13.1"
+ThisBuild / crossScalaVersions := Seq(Scala211, "2.12.10", "2.13.1")
 ThisBuild / organization       := "io.monix"
 ThisBuild / organizationName   := "monix"
 
@@ -101,7 +99,7 @@ lazy val sharedSettings = Seq(
   }),
 
   resolvers ++= Seq(
-    "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
+    "Typesafe Releases" at "https://repo.typesafe.com/typesafe/releases",
     Resolver.sonatypeRepo("releases")
   ),
 
@@ -109,11 +107,11 @@ lazy val sharedSettings = Seq(
     (baseDirectory in LocalRootProject).value / "shared/src/main/scala"
   },
 
-  libraryDependencies += "io.monix" %%% "minitest" % "2.6.0" % "test",
+  libraryDependencies += "io.monix" %%% "minitest" % "2.8.2" % "test",
   testFrameworks += new TestFramework("minitest.runner.Framework"),
 
   headerLicense := Some(HeaderLicense.Custom(
-    """|Copyright (c) 2014-2019 by The Monix Project Developers.
+    """|Copyright (c) 2014-2020 by The Monix Project Developers.
        |See the project homepage at: https://monix.io
        |
        |Licensed under the Apache License, Version 2.0 (the "License");
@@ -137,27 +135,6 @@ lazy val scalaJSSettings = Seq(
 lazy val nativeSettings = Seq(
   scalaVersion := Scala211,
   crossScalaVersions := Seq(Scala211)
-)
-
-lazy val needsScalaParadise = settingKey[Boolean]("Needs Scala Paradise")
-
-lazy val requiredMacroCompatDeps = Seq(
-  needsScalaParadise := {
-    val sv = scalaVersion.value
-    (sv startsWith "2.11.") || (sv startsWith "2.12.") || (sv == "2.13.0-M3")
-  },
-  libraryDependencies ++= Seq(
-    "org.scala-lang" % "scala-reflect" % scalaVersion.value % Compile,
-    "org.scala-lang" % "scala-compiler" % scalaVersion.value % Provided,
-  ),
-  libraryDependencies ++= {
-    if (needsScalaParadise.value) Seq(compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.patch))
-    else Nil
-  },
-  scalacOptions ++= {
-    if (needsScalaParadise.value) Nil
-    else Seq("-Ymacro-annotations")
-  }
 )
 
 val ReleaseTag = """^v(\d+\.\d+\.\d+(?:[-.]\w+)?)$""".r
@@ -195,19 +172,6 @@ lazy val publishSettings = Seq(
   },
   ThisBuild / Test / publishArtifact := false,
   ThisBuild / pomIncludeRepository := { _ => false }, // removes optional dependencies
-
-  // For evicting Scoverage out of the generated POM
-  // See: https://github.com/scoverage/sbt-scoverage/issues/153
-  ThisBuild / pomPostProcess := { (node: xml.Node) =>
-    new RuleTransformer(new RewriteRule {
-      override def transform(node: xml.Node): Seq[xml.Node] = node match {
-        case e: Elem
-          if e.label == "dependency" && e.child.exists(child => child.label == "groupId" && child.text == "org.scoverage") => Nil
-        case _ => Seq(node)
-      }
-    }).transform(node).head
-  },
-
   publishConfiguration := publishConfiguration.value.withOverwrite(true),
   publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
 
@@ -248,7 +212,6 @@ lazy val implicitbox = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     name := "implicitbox",
     sharedSettings,
     crossVersionSharedSources,
-    requiredMacroCompatDeps,
     publishSettings
   )
 
