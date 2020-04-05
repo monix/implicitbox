@@ -7,8 +7,11 @@ jobs:
     docker:
       - image: openjdk:8
     environment:
-      SBT_VERSION: 1.2.8
+      SBT_VERSION: 1.3.4
     resource_class: medium
+    parameters:
+      scalajsVersion:
+        type: string
     steps:
       - run:
           name: Install dependencies
@@ -31,7 +34,7 @@ jobs:
       - run:
           name: Build and run tests
           working_directory: ~/implicitbox
-          command: cat /dev/null | sbt -J-Xmx3072m -J-XX:MaxMetaspaceSize=1024m ci-all
+          command: cat /dev/null | SCALAJS_VERSION =<< parameters.scalajsVersion >> sbt -J-Xmx3072m -J-XX:MaxMetaspaceSize=1024m ci-all
 
       - save_cache:
           key: implicitbox-cache
@@ -39,3 +42,17 @@ jobs:
             - "~/.ivy2/cache"
             - "~/.sbt"
             - "~/.m2"
+
+build_jobs: &build_jobs
+  - build:
+      name:  Scala.js 0.6.x
+      scalajsVersion: 0.6.32
+  - build:
+      name:  Scala.js 1.x
+      scalajsVersion: 1.0.0
+
+workflows:
+  version: 2
+
+  build:
+    jobs: *build_jobs

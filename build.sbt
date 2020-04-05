@@ -10,8 +10,8 @@ addCommandAlias("ci-all",  ";+clean ;implicitboxNative/clean ;+test:compile ;imp
 addCommandAlias("release", ";+clean ;+implicitboxNative/clean ;+publishSigned ;+implicitboxNative/publishSigned")
 
 val Scala211 = "2.11.12"
-ThisBuild / scalaVersion       := "2.13.0"
-ThisBuild / crossScalaVersions := Seq(Scala211, "2.12.8", "2.13.0")
+ThisBuild / scalaVersion       := "2.13.1"
+ThisBuild / crossScalaVersions := Seq(Scala211, "2.12.10", "2.13.1")
 ThisBuild / organization       := "io.monix"
 ThisBuild / organizationName   := "monix"
 
@@ -109,11 +109,11 @@ lazy val sharedSettings = Seq(
     (baseDirectory in LocalRootProject).value / "shared/src/main/scala"
   },
 
-  libraryDependencies += "io.monix" %%% "minitest" % "2.6.0" % "test",
+  libraryDependencies += "io.monix" %%% "minitest" % "2.8.1" % "test",
   testFrameworks += new TestFramework("minitest.runner.Framework"),
 
   headerLicense := Some(HeaderLicense.Custom(
-    """|Copyright (c) 2014-2019 by The Monix Project Developers.
+    """|Copyright (c) 2014-2020 by The Monix Project Developers.
        |See the project homepage at: https://monix.io
        |
        |Licensed under the Apache License, Version 2.0 (the "License");
