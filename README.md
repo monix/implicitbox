@@ -2,8 +2,6 @@
 
 Scala micro-library providing utilities for capturing implicits.
 
-[![CircleCI](https://circleci.com/gh/monix/implicitbox.svg?style=svg)](https://circleci.com/gh/monix/implicitbox)
-
 ### Compiler support
 
 - Scala 2.11, 2.12, 2.13
