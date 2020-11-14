@@ -1,32 +1,13 @@
 import sbt._
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-// shadow sbt-scalajs' crossProject and CrossType until Scala.js 1.0.0 is released
-import sbtcrossproject.CrossPlugin.autoImport.crossProject
 import sbt.Keys._
 
-addCommandAlias("ci-all",  ";+clean ;implicitboxNative/clean ;+test:compile ;implicitboxNative/test:compile ;+test ;implicitboxNative/test ;+package ;implicitboxNative/package")
-addCommandAlias("release", ";+clean ;+implicitboxNative/clean ;+publishSigned ;+implicitboxNative/publishSigned")
+addCommandAlias("ci-all",  ";+clean ;+test:compile ;+test ;+package")
+addCommandAlias("release", ";+clean ;+publishSigned")
 
-val Scala211 = "2.11.12"
 ThisBuild / scalaVersion       := "2.13.1"
-ThisBuild / crossScalaVersions := Seq(Scala211, "2.12.10", "2.13.1")
+ThisBuild / crossScalaVersions := Seq("2.12.10", "2.13.1")
 ThisBuild / organization       := "io.monix"
 ThisBuild / organizationName   := "monix"
-
-def scalaPartV = Def setting (CrossVersion partialVersion scalaVersion.value)
-lazy val crossVersionSharedSources: Seq[Setting[_]] =
-  Seq(Compile, Test).map { sc =>
-    (unmanagedSourceDirectories in sc) ++= {
-      (unmanagedSourceDirectories in sc).value.map { dir =>
-        scalaPartV.value match {
-          case Some((major, minor)) =>
-            new File(dir.getPath + s"_$major.$minor")
-          case None =>
-            throw new NoSuchElementException("Scala version")
-        }
-      }
-    }
-  }
 
 lazy val scalaLinterOptions =
   Seq(
@@ -80,28 +61,9 @@ lazy val sharedSettings = Seq(
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, v)) if v > 12 =>
       scalaLinterOptions ++ scalaTwoTwelvePlusOptions
-    case Some((2, 12)) =>
+    case _ =>
       scalaLinterOptions ++ scalaTwoTwelvePlusOptions ++ scalaTwoTwelveDeprecatedOptions
-    case Some((2, 11)) =>
-      scalaLinterOptions ++ Seq("-target:jvm-1.6") ++ scalaTwoTwelveDeprecatedOptions
-    case _ =>
-      Seq("-target:jvm-1.6")
   }),
-  scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 11 | 12)) =>
-      Seq(
-        "-Xlint:unsound-match", // Pattern match may not be typesafe
-        "-Xlint:by-name-right-associative", // By-name parameter of right associative operator
-        "-Ywarn-adapted-args"
-      )
-    case _ =>
-      Nil
-  }),
-
-  resolvers ++= Seq(
-    "Typesafe Releases" at "https://repo.typesafe.com/typesafe/releases",
-    Resolver.sonatypeRepo("releases")
-  ),
 
   unmanagedSourceDirectories in Compile += {
     (baseDirectory in LocalRootProject).value / "shared/src/main/scala"
@@ -130,11 +92,6 @@ lazy val sharedSettings = Seq(
 
 lazy val scalaJSSettings = Seq(
   scalaJSStage in Test := FastOptStage
-)
-
-lazy val nativeSettings = Seq(
-  scalaVersion := Scala211,
-  crossScalaVersions := Seq(Scala211)
 )
 
 val ReleaseTag = """^v(\d+\.\d+\.\d+(?:[-.]\w+)?)$""".r
@@ -202,19 +159,16 @@ lazy val implicitboxRoot = project.in(file("."))
     skip in publish := true,
   )
 
-lazy val implicitbox = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+lazy val implicitbox = crossProject(JVMPlatform, JSPlatform)
   .in(file("."))
   .enablePlugins(AutomateHeaderPlugin)
   .enablePlugins(GitVersioning)
-  .nativeSettings(nativeSettings)
   .jsSettings(scalaJSSettings)
   .settings(
     name := "implicitbox",
     sharedSettings,
-    crossVersionSharedSources,
     publishSettings
   )
 
 lazy val implicitboxJVM    = implicitbox.jvm
 lazy val implicitboxJS     = implicitbox.js
-lazy val implicitboxNative = implicitbox.native
