@@ -5,71 +5,52 @@ addCommandAlias("ci-all",  ";+clean ;+test:compile ;+test ;+package")
 addCommandAlias("release", ";+clean ;+publishSigned")
 
 ThisBuild / scalaVersion       := "2.13.1"
-ThisBuild / crossScalaVersions := Seq("2.12.10", "2.13.1")
+ThisBuild / crossScalaVersions := Seq("2.12.10", "2.13.1", "0.27.0-RC1", "3.0.0-M1")
 ThisBuild / organization       := "io.monix"
 ThisBuild / organizationName   := "monix"
 
-lazy val scalaLinterOptions =
-  Seq(
-    // Enables linter options
-    "-Xlint:adapted-args", // warn if an argument list is modified to match the receiver
-    "-Xlint:nullary-unit", // warn when nullary methods return Unit
-    "-Xlint:inaccessible", // warn about inaccessible types in method signatures
-    "-Xlint:nullary-override", // warn when non-nullary `def f()' overrides nullary `def f'
-    "-Xlint:infer-any", // warn when a type argument is inferred to be `Any`
-    "-Xlint:missing-interpolator", // a string literal appears to be missing an interpolator id
-    "-Xlint:doc-detached", // a ScalaDoc comment appears to be detached from its element
-    "-Xlint:private-shadow", // a private field (or class parameter) shadows a superclass field
-    "-Xlint:type-parameter-shadow", // a local type parameter shadows a type already in scope
-    "-Xlint:poly-implicit-overload", // parameterized overloaded implicit methods are not visible as view bounds
-    "-Xlint:option-implicit", // Option.apply used implicit view
-    "-Xlint:delayedinit-select", // Selecting member of DelayedInit
-    "-Xlint:package-object-classes" // Class or object defined in package object
-  )
-
-lazy val scalaTwoTwelvePlusOptions =
-  Seq(
-    // Options available from Scala 2.12 and up
-    "-Ywarn-unused:-implicits"
-  )
-
-lazy val scalaTwoTwelveDeprecatedOptions =
-  Seq(
-    // Deprecated in 2.12, removed in 2.13
-    "-Ywarn-inaccessible",
-    "-Ywarn-nullary-override",
-    "-Ywarn-nullary-unit"
-  )
+ThisBuild / scalacOptions ++= Seq(
+  // Note, this is used by the doc-source-url feature to determine the
+  // relative path of a given source file. If it's not a prefix of a the
+  // absolute path of the source file, the absolute path of that file
+  // will be put into the FILE_SOURCE variable, which is
+  // definitely not what we want.
+  "-sourcepath", file(".").getAbsolutePath.replaceAll("[.]$", "")
+)
 
 lazy val sharedSettings = Seq(
-  scalacOptions in ThisBuild ++= Seq(
-    // Note, this is used by the doc-source-url feature to determine the
-    // relative path of a given source file. If it's not a prefix of a the
-    // absolute path of the source file, the absolute path of that file
-    // will be put into the FILE_SOURCE variable, which is
-    // definitely not what we want.
-    "-sourcepath", file(".").getAbsolutePath.replaceAll("[.]$", "")
-  ),
-
-  scalacOptions ++= Seq(
-    "-unchecked", "-deprecation", "-feature", "-Xlint",
-    "-Ywarn-dead-code",
-    "-Xlog-free-terms"
-  ),
-
   // Version specific options
-  scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, v)) if v > 12 =>
-      scalaLinterOptions ++ scalaTwoTwelvePlusOptions
-    case _ =>
-      scalaLinterOptions ++ scalaTwoTwelvePlusOptions ++ scalaTwoTwelveDeprecatedOptions
-  }),
+  scalacOptions ++= (
+    if (isDotty.value)
+      Seq()
+    else
+      Seq(
+        "-unchecked", "-deprecation", "-feature", "-Xlint",
+        "-Ywarn-dead-code",
+        "-Xlog-free-terms",
+        // Enables linter options
+        "-Xlint:adapted-args", // warn if an argument list is modified to match the receiver
+        "-Xlint:nullary-unit", // warn when nullary methods return Unit
+        "-Xlint:inaccessible", // warn about inaccessible types in method signatures
+        "-Xlint:nullary-override", // warn when non-nullary `def f()' overrides nullary `def f'
+        "-Xlint:infer-any", // warn when a type argument is inferred to be `Any`
+        "-Xlint:missing-interpolator", // a string literal appears to be missing an interpolator id
+        "-Xlint:doc-detached", // a ScalaDoc comment appears to be detached from its element
+        "-Xlint:private-shadow", // a private field (or class parameter) shadows a superclass field
+        "-Xlint:type-parameter-shadow", // a local type parameter shadows a type already in scope
+        "-Xlint:poly-implicit-overload", // parameterized overloaded implicit methods are not visible as view bounds
+        "-Xlint:option-implicit", // Option.apply used implicit view
+        "-Xlint:delayedinit-select", // Selecting member of DelayedInit
+        "-Xlint:package-object-classes" // Class or object defined in package object
+      )
+
+  ),
 
   unmanagedSourceDirectories in Compile += {
     (baseDirectory in LocalRootProject).value / "shared/src/main/scala"
   },
 
-  libraryDependencies += "io.monix" %%% "minitest" % "2.8.2" % "test",
+  libraryDependencies += "io.monix" %%% "minitest" % "2.9.0" % "test",
   testFrameworks += new TestFramework("minitest.runner.Framework"),
 
   headerLicense := Some(HeaderLicense.Custom(
