@@ -17,25 +17,5 @@
 
 package implicitbox
 
-import minitest.SimpleTestSuite
-
-object NotSuite extends SimpleTestSuite {
-  test("default implicit resolution") {
-    import MyType.Implicits.forAny
-
-    val forString = implicitly[MyType[String]]
-    val forInt = implicitly[MyType[Int]]
-
-    assertEquals(forString, MyType.forString)
-    assertEquals(forInt, MyType.forAny[Int])
-  }
-
-  test("should resolve") {
-    val ev = implicitly[Not[MyType[Int]]]
-    assert(ev.isInstanceOf[Not[_]])
-  }
-
-  test("should fail if implicit is in scope") {
-    assertDoesNotCompile("implicitly[Not[MyType[String]]]")
-  }
-}
+type Not[+A] = scala.util.Not[A]
+val Not = scala.util.Not

@@ -50,6 +50,13 @@ lazy val sharedSettings = Seq(
     (baseDirectory in LocalRootProject).value / "shared/src/main/scala"
   },
 
+  Compile / unmanagedSourceDirectories += (
+    if (isDotty.value)
+      (ThisBuild / baseDirectory).value / "shared/src/main/scala-3"
+    else
+      (ThisBuild / baseDirectory).value / "shared/src/main/scala-2"
+  ),
+
   libraryDependencies += "io.monix" %%% "minitest" % "2.9.0" % "test",
   testFrameworks += new TestFramework("minitest.runner.Framework"),
 
