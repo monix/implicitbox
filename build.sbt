@@ -56,6 +56,13 @@ lazy val sharedSettings = Seq(
     else
       (ThisBuild / baseDirectory).value / "shared/src/main/scala-2"
   ),
+  Compile / doc / sources := {
+    val old = (Compile / doc / sources).value
+    if (isDotty.value)
+      Seq()
+    else
+      old
+  },
 
   libraryDependencies += "io.monix" %%% "minitest" % "2.9.0" % "test",
   testFrameworks += new TestFramework("minitest.runner.Framework"),
