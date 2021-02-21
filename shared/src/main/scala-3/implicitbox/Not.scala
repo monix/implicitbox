@@ -17,5 +17,5 @@
 
 package implicitbox
 
-type Not[+A] = scala.util.Not[A]
-val Not = scala.util.Not
+type Not[+A] = scala.util.NotGiven[A]
+val Not = scala.util.NotGiven
