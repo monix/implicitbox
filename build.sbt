@@ -4,8 +4,8 @@ import sbt.Keys._
 addCommandAlias("ci-all",  ";+clean ;+test:compile ;+test ;+package")
 addCommandAlias("release", ";+clean ;+publishSigned")
 
-ThisBuild / scalaVersion       := "2.13.1"
-ThisBuild / crossScalaVersions := Seq("2.12.10", "2.13.1", "3.0.0-RC1")
+ThisBuild / scalaVersion       := "2.13.5"
+ThisBuild / crossScalaVersions := Seq("2.12.13", "2.13.5", "3.0.0-RC2", "3.0.0-RC3")
 ThisBuild / organization       := "io.monix"
 ThisBuild / organizationName   := "monix"
 
@@ -17,6 +17,19 @@ ThisBuild / scalacOptions ++= Seq(
   // definitely not what we want.
   "-sourcepath", file(".").getAbsolutePath.replaceAll("[.]$", "")
 )
+
+inThisBuild(List(
+  organization := "io.monix",
+  homepage := Some(url("https://monix.io")),
+  licenses := Seq("APL2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+  developers := List(
+    Developer(
+      id="Avasil",
+      name="Piotr Gawrys",
+      email="pgawrys2@gmail.com",
+      url=url("https://github.com/Avasil")
+    ))
+))
 
 lazy val sharedSettings = Seq(
   // Version specific options
