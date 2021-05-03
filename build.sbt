@@ -77,7 +77,7 @@ lazy val sharedSettings = Seq(
       old
   },
 
-  libraryDependencies += "io.monix" %%% "minitest" % "2.9.3" % "test",
+  libraryDependencies += "io.monix" %%% "minitest" % "2.9.5" % "test",
   testFrameworks += new TestFramework("minitest.runner.Framework"),
 
   headerLicense := Some(HeaderLicense.Custom(
