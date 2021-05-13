@@ -5,7 +5,7 @@ addCommandAlias("ci-all",  ";+clean ;+test:compile ;+test ;+package")
 addCommandAlias("release", ";+clean ;+publishSigned")
 
 ThisBuild / scalaVersion       := "2.13.5"
-ThisBuild / crossScalaVersions := Seq("2.12.13", "2.13.5", "3.0.0-RC2", "3.0.0-RC3")
+ThisBuild / crossScalaVersions := Seq("2.12.13", "2.13.5", "3.0.0")
 ThisBuild / organization       := "io.monix"
 ThisBuild / organizationName   := "monix"
 
@@ -77,11 +77,11 @@ lazy val sharedSettings = Seq(
       old
   },
 
-  libraryDependencies += "io.monix" %%% "minitest" % "2.9.5" % "test",
+  libraryDependencies += "io.monix" %%% "minitest" % "2.9.6" % "test",
   testFrameworks += new TestFramework("minitest.runner.Framework"),
 
   headerLicense := Some(HeaderLicense.Custom(
-    """|Copyright (c) 2014-2020 by The Monix Project Developers.
+    """|Copyright (c) 2014-2021 by The Monix Project Developers.
        |See the project homepage at: https://monix.io
        |
        |Licensed under the Apache License, Version 2.0 (the "License");
