@@ -31,6 +31,10 @@ inThisBuild(List(
     ))
 ))
 
+val isDotty = Def.setting(
+  CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
+)
+
 lazy val sharedSettings = Seq(
   // Version specific options
   scalacOptions ++= (
